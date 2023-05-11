@@ -1,6 +1,6 @@
 import { IExchangeInterface } from '../interfaces/exchangeInterface';
 
-export class SImpleStategy {
+export class SimpleStrategy {
     private exchange: IExchangeInterface;
     private baseCurrency: string;
     private quoteCurrency: string;
@@ -33,7 +33,7 @@ export class SImpleStategy {
             console.log(`Selling ${symbol} at ${ticker.last}`);
 
             // TODO: Determine the amount to sell
-            
+
             await this.exchange.createOrder(symbol, 'sell', 1, ticker.last);
           }
         }
