@@ -1,5 +1,6 @@
 import { BinanceInterface, KrakenInterface } from '../interfaces/exchangeInterface';
 import { SimpleStrategy } from '../strategies/strategy';
+import { logger } from '../loggers/logger';
 
 export class MainController {
     private binance: BinanceInterface;
@@ -14,10 +15,14 @@ export class MainController {
       }
  
       async run() {
-        // Run the strategy every minute
-        setInterval(async () => {
-          await this.strategy.execute();
-        }, 60 * 1000);
-      }    
+        try{
+            // Run the strategy every minute
+            setInterval(async () => {
+              await this.strategy.execute();
+            }, 60 * 1000);
+          } catch (error) {
+            logger.error(`Failed to run controller: ${error}`);
+          }    
+        }  
       
 }

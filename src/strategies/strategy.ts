@@ -1,4 +1,5 @@
 import { IExchangeInterface } from '../interfaces/exchangeInterface';
+import { logger } from '../loggers/logger';
 
 export class SimpleStrategy {
     private exchange: IExchangeInterface;
@@ -16,26 +17,25 @@ export class SimpleStrategy {
     }
 
     async execute() {
+        
+        try {
+            const symbol = `${this.baseCurrency}/${this.quoteCurrency}`;
+            const ticker = await this.exchange.fetchTicker(symbol);
 
-        const symbol = `${this.baseCurrency}/${this.quoteCurrency}`;
-        const ticker = await this.exchange.fetchTicker(symbol);
-
-        if (ticker.last < this.lowThreshold) {
-
-            console.log(`Buying ${symbol} at ${ticker.last}`);
-
-            // TODO: Determine the amount to buy
-
-            await this.exchange.createOrder(symbol, 'buy', 1, ticker.last);
-
-          } else if (ticker.last > this.highThreshold) {
-
-            console.log(`Selling ${symbol} at ${ticker.last}`);
-
-            // TODO: Determine the amount to sell
-
-            await this.exchange.createOrder(symbol, 'sell', 1, ticker.last);
-          }
+            if (ticker.last < this.lowThreshold) {
+                console.log(`Buying ${symbol} at ${ticker.last}`);
+                // TODO: Determine the amount to buy
+                await this.exchange.createOrder(symbol, 'buy', 1, ticker.last);
+    
+              } else if (ticker.last > this.highThreshold) {
+    
+                console.log(`Selling ${symbol} at ${ticker.last}`);
+                // TODO: Determine the amount to sell
+                await this.exchange.createOrder(symbol, 'sell', 1, ticker.last);
+              }
+            
+        }catch (error) {
+            logger.error(`Failed to execute strategy: ${error}`)
         }
-      
-    }
+    }      
+}
