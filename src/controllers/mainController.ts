@@ -18,6 +18,7 @@ export class MainController {
         try{
             // Run the strategy every minute
             setInterval(async () => {
+              logger.info('Checking the prices')
               await this.strategy.execute();
             }, 60 * 1000);
           } catch (error) {

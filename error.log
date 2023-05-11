@@ -1,0 +1,2 @@
+{"level":"error","message":"Failed to execute strategy: AuthenticationError: binance {\"code\":-2015,\"msg\":\"Invalid API-key, IP, or permissions for action\"}"}
+{"level":"error","message":"Failed to execute strategy: AuthenticationError: binance {\"code\":-2015,\"msg\":\"Invalid API-key, IP, or permissions for action\"}"}

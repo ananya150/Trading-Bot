@@ -25,6 +25,7 @@ class MainController {
             try {
                 // Run the strategy every minute
                 setInterval(() => __awaiter(this, void 0, void 0, function* () {
+                    logger_1.logger.info('Checking the prices');
                     yield this.strategy.execute();
                 }), 60 * 1000);
             }
