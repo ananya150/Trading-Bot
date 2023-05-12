@@ -13,6 +13,8 @@ exports.Backtest = void 0;
 class Backtest {
     constructor(exchange, strategy, symbol, timeframe, initialBalance) {
         this.quantity = 0;
+        this.trades = [];
+        this.position = null;
         this.exchange = exchange;
         this.strategy = strategy;
         this.symbol = symbol;
@@ -21,27 +23,52 @@ class Backtest {
         this.balance = initialBalance;
     }
     run(since, limit) {
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             const ohlcv = yield this.exchange.fetchOHLCV(this.symbol, this.timeframe, since, limit);
             for (const candle of ohlcv) {
                 const ticker = { last: candle.close };
                 const action = yield this.strategy.execute(ticker);
                 if (action === 'buy' && this.balance > 0) {
-                    this.quantity = this.balance / candle.close; // Buy as much as we can
+                    // Buy all
+                    this.quantity = this.balance / candle.close;
+                    // update the position
+                    this.position = { entry: ticker.last, amount: this.balance };
+                    // update the balnace
                     this.balance = 0;
                     console.log(`Bought at ${candle.close}`);
                 }
-                else if (action === 'sell' && this.quantity > 0) {
-                    this.balance = this.quantity * candle.close; // Sell all
+                else if (action === 'sell' && this.quantity > 0 && this.position) {
+                    // sell all
+                    this.balance = this.quantity * candle.close;
+                    // update quantity 
                     this.quantity = 0;
+                    // Add the trade
+                    const profit = ticker.last - ((_a = this.position) === null || _a === void 0 ? void 0 : _a.entry);
+                    this.trades.push({ entry: (_b = this.position) === null || _b === void 0 ? void 0 : _b.entry, exit: ticker.last, profit: profit });
+                    this.position = null;
                     console.log(`Sold at ${candle.close}`);
                 }
             }
             const finalBalance = this.balance + this.quantity * ohlcv[ohlcv.length - 1].close;
             console.log(`Initial balance: ${this.initialBalance}`);
-            console.log(`Final balance: ${finalBalance}`);
-            console.log(`Return: ${(finalBalance - this.initialBalance) / this.initialBalance * 100}%`);
+            this.calculateMetrics();
         });
+    }
+    calculateMetrics() {
+        const totalReturn = (this.balance - this.initialBalance) / this.initialBalance;
+        const winningTrades = this.trades.filter(trade => trade.profit > 0);
+        const losingTrades = this.trades.filter(trade => trade.profit < 0);
+        const winRate = winningTrades.length / this.trades.length;
+        const averageWin = winningTrades.reduce((sum, trade) => sum + trade.profit, 0) / winningTrades.length;
+        const averageLoss = losingTrades.reduce((sum, trade) => sum + trade.profit, 0) / losingTrades.length;
+        const profitFactor = -averageWin / averageLoss;
+        // Drawdown calculation requires a running balance, which is not currently tracked. 
+        console.log(`Total Return: ${totalReturn * 100}%`);
+        console.log(`Win Rate: ${winRate * 100}%`);
+        console.log(`Average Win: ${averageWin}`);
+        console.log(`Average Loss: ${averageLoss}`);
+        console.log(`Profit Factor: ${profitFactor}`);
     }
 }
 exports.Backtest = Backtest;

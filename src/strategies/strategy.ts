@@ -42,14 +42,13 @@ export class SimpleStrategy {
     
         if (shortSMAValue && longSMAValue) {
           if (shortSMAValue > longSMAValue) {
-            console.log('BUY signal', ticker.last);
+            // console.log('BUY signal', ticker.last);
             return 'buy';
           } else if (shortSMAValue < longSMAValue) {
-            console.log('SELL signal', ticker.last);
+            // console.log('SELL signal', ticker.last);
             return 'sell';
           }
         }
-    
         return 'hold';
       }
     

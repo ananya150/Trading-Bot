@@ -34,11 +34,11 @@ class SimpleStrategy {
             const longSMAValue = this.longSMA.nextValue(ticker.last);
             if (shortSMAValue && longSMAValue) {
                 if (shortSMAValue > longSMAValue) {
-                    console.log('BUY signal', ticker.last);
+                    // console.log('BUY signal', ticker.last);
                     return 'buy';
                 }
                 else if (shortSMAValue < longSMAValue) {
-                    console.log('SELL signal', ticker.last);
+                    // console.log('SELL signal', ticker.last);
                     return 'sell';
                 }
             }
