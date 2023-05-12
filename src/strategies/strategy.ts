@@ -2,6 +2,10 @@ import { IExchangeInterface  } from '../interfaces/exchangeInterface';
 import { SMA } from 'technicalindicators';
 import { logger } from '../loggers/logger';
 
+export interface StrategyInterface {
+    execute(ticker?: any): Promise<string>;
+  }
+
 export class SimpleStrategy {
     private exchange: IExchangeInterface;
     private symbol: string;
@@ -22,9 +26,11 @@ export class SimpleStrategy {
         this.longSMA = new SMA({ period: this.longPeriod, values: [] });
       }
 
-      async execute(): Promise<void> {
-        
-        const ticker: any = await this.exchange.fetchTicker(this.symbol);
+      async execute(ticker?: any): Promise<string> {
+        if (!ticker) {
+          ticker = await this.exchange.fetchTicker(this.symbol);
+        }
+    
         this.priceHistory.push(ticker.last);
     
         if (this.priceHistory.length > this.longPeriod) {
@@ -37,13 +43,16 @@ export class SimpleStrategy {
         if (shortSMAValue && longSMAValue) {
           if (shortSMAValue > longSMAValue) {
             console.log('BUY signal', ticker.last);
-            // Here you would add the code to place a buy order
+            return 'buy';
           } else if (shortSMAValue < longSMAValue) {
             console.log('SELL signal', ticker.last);
-            // Here you would add the code to place a sell order
+            return 'sell';
           }
         }
+    
+        return 'hold';
       }
+    
     
 
 }
