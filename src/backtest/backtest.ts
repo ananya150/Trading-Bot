@@ -23,7 +23,8 @@ export class Backtest {
       const ohlcv = await this.exchange.fetchOHLCV(this.symbol, this.timeframe, since, limit);
       
       for (const candle of ohlcv) {
-        const action = await this.strategy.execute(candle);
+        const ticker: any = { last: candle.close };
+        const action = await this.strategy.execute(ticker);
         
         if (action === 'buy' && this.balance > 0) {
           this.quantity = this.balance / candle.close;  // Buy as much as we can

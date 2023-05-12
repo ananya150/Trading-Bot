@@ -33,6 +33,12 @@ class BinanceInterface {
             yield this.exchange.createOrder(symbol, 'limit', side, amount, price);
         });
     }
+    fetchOHLCV(symbol, timeframe, since, limit = 100) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const ohlcv = yield this.exchange.fetchOHLCV(symbol, timeframe, since, limit);
+            return ohlcv.map(([timestamp, open, high, low, close, volume]) => ({ timestamp, open, high, low, close, volume }));
+        });
+    }
 }
 exports.BinanceInterface = BinanceInterface;
 class KrakenInterface {
@@ -50,6 +56,12 @@ class KrakenInterface {
     createOrder(symbol, side, amount, price) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.exchange.createOrder(symbol, 'limit', side, amount, price);
+        });
+    }
+    fetchOHLCV(symbol, timeframe, since, limit = 100) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const ohlcv = yield this.exchange.fetchOHLCV(symbol, timeframe, since, limit);
+            return ohlcv.map(([timestamp, open, high, low, close, volume]) => ({ timestamp, open, high, low, close, volume }));
         });
     }
 }

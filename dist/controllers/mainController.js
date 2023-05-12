@@ -18,7 +18,7 @@ class MainController {
         this.binance = new exchangeInterface_1.BinanceInterface();
         this.kraken = new exchangeInterface_1.KrakenInterface();
         // Choose one exchange for the strategy
-        this.strategy = new strategy_1.SimpleStrategy(this.binance, 'BTC', 'USD', 50000, 60000);
+        this.strategy = new strategy_1.SimpleStrategy(this.binance, 'BTC/USDT', 5, 20);
     }
     run() {
         return __awaiter(this, void 0, void 0, function* () {

@@ -21,9 +21,11 @@ class SimpleStrategy {
         this.shortSMA = new technicalindicators_1.SMA({ period: this.shortPeriod, values: [] });
         this.longSMA = new technicalindicators_1.SMA({ period: this.longPeriod, values: [] });
     }
-    execute() {
+    execute(ticker) {
         return __awaiter(this, void 0, void 0, function* () {
-            const ticker = yield this.exchange.fetchTicker(this.symbol);
+            if (!ticker) {
+                ticker = yield this.exchange.fetchTicker(this.symbol);
+            }
             this.priceHistory.push(ticker.last);
             if (this.priceHistory.length > this.longPeriod) {
                 this.priceHistory.shift(); // remove oldest price
@@ -33,13 +35,14 @@ class SimpleStrategy {
             if (shortSMAValue && longSMAValue) {
                 if (shortSMAValue > longSMAValue) {
                     console.log('BUY signal', ticker.last);
-                    // Here you would add the code to place a buy order
+                    return 'buy';
                 }
                 else if (shortSMAValue < longSMAValue) {
                     console.log('SELL signal', ticker.last);
-                    // Here you would add the code to place a sell order
+                    return 'sell';
                 }
             }
+            return 'hold';
         });
     }
 }

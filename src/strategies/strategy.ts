@@ -30,7 +30,7 @@ export class SimpleStrategy {
         if (!ticker) {
           ticker = await this.exchange.fetchTicker(this.symbol);
         }
-    
+   
         this.priceHistory.push(ticker.last);
     
         if (this.priceHistory.length > this.longPeriod) {
