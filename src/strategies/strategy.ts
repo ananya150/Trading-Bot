@@ -1,41 +1,49 @@
-import { IExchangeInterface } from '../interfaces/exchangeInterface';
+import { IExchangeInterface  } from '../interfaces/exchangeInterface';
+import { SMA } from 'technicalindicators';
 import { logger } from '../loggers/logger';
 
 export class SimpleStrategy {
     private exchange: IExchangeInterface;
-    private baseCurrency: string;
-    private quoteCurrency: string;
-    private lowThreshold: number;
-    private highThreshold: number;
+    private symbol: string;
+    // private period: number;
+    private shortPeriod: number;
+    private longPeriod: number;
+    private priceHistory: number[];
+    private shortSMA: SMA;
+    private longSMA: SMA;
 
-    constructor(exchange: IExchangeInterface, baseCurrency: string, quoteCurrency: string, lowThreshold: number, highThreshold: number) {
+    constructor(exchange: IExchangeInterface, symbol: string, shortPeriod: number, longPeriod: number) {
         this.exchange = exchange;
-        this.baseCurrency = baseCurrency;
-        this.quoteCurrency = quoteCurrency;
-        this.lowThreshold = lowThreshold;
-        this.highThreshold = highThreshold;
-    }
+        this.symbol = symbol;
+        this.shortPeriod = shortPeriod;
+        this.longPeriod = longPeriod;
+        this.priceHistory = [];
+        this.shortSMA = new SMA({ period: this.shortPeriod, values: [] });
+        this.longSMA = new SMA({ period: this.longPeriod, values: [] });
+      }
 
-    async execute() {
+      async execute(): Promise<void> {
         
-        try {
-            const symbol = `${this.baseCurrency}/${this.quoteCurrency}`;
-            const ticker = await this.exchange.fetchTicker(symbol);
-
-            if (ticker.last < this.lowThreshold) {
-                console.log(`Buying ${symbol} at ${ticker.last}`);
-                // TODO: Determine the amount to buy
-                await this.exchange.createOrder(symbol, 'buy', 1, ticker.last);
+        const ticker: any = await this.exchange.fetchTicker(this.symbol);
+        this.priceHistory.push(ticker.last);
     
-              } else if (ticker.last > this.highThreshold) {
-    
-                console.log(`Selling ${symbol} at ${ticker.last}`);
-                // TODO: Determine the amount to sell
-                await this.exchange.createOrder(symbol, 'sell', 1, ticker.last);
-              }
-            
-        }catch (error) {
-            logger.error(`Failed to execute strategy: ${error}`)
+        if (this.priceHistory.length > this.longPeriod) {
+          this.priceHistory.shift();  // remove oldest price
         }
-    }      
+    
+        const shortSMAValue = this.shortSMA.nextValue(ticker.last);
+        const longSMAValue = this.longSMA.nextValue(ticker.last);
+    
+        if (shortSMAValue && longSMAValue) {
+          if (shortSMAValue > longSMAValue) {
+            console.log('BUY signal', ticker.last);
+            // Here you would add the code to place a buy order
+          } else if (shortSMAValue < longSMAValue) {
+            console.log('SELL signal', ticker.last);
+            // Here you would add the code to place a sell order
+          }
+        }
+      }
+    
+
 }

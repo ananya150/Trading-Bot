@@ -10,33 +10,35 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SimpleStrategy = void 0;
-const logger_1 = require("../loggers/logger");
+const technicalindicators_1 = require("technicalindicators");
 class SimpleStrategy {
-    constructor(exchange, baseCurrency, quoteCurrency, lowThreshold, highThreshold) {
+    constructor(exchange, symbol, shortPeriod, longPeriod) {
         this.exchange = exchange;
-        this.baseCurrency = baseCurrency;
-        this.quoteCurrency = quoteCurrency;
-        this.lowThreshold = lowThreshold;
-        this.highThreshold = highThreshold;
+        this.symbol = symbol;
+        this.shortPeriod = shortPeriod;
+        this.longPeriod = longPeriod;
+        this.priceHistory = [];
+        this.shortSMA = new technicalindicators_1.SMA({ period: this.shortPeriod, values: [] });
+        this.longSMA = new technicalindicators_1.SMA({ period: this.longPeriod, values: [] });
     }
     execute() {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const symbol = `${this.baseCurrency}/${this.quoteCurrency}`;
-                const ticker = yield this.exchange.fetchTicker(symbol);
-                if (ticker.last < this.lowThreshold) {
-                    console.log(`Buying ${symbol} at ${ticker.last}`);
-                    // TODO: Determine the amount to buy
-                    yield this.exchange.createOrder(symbol, 'buy', 1, ticker.last);
-                }
-                else if (ticker.last > this.highThreshold) {
-                    console.log(`Selling ${symbol} at ${ticker.last}`);
-                    // TODO: Determine the amount to sell
-                    yield this.exchange.createOrder(symbol, 'sell', 1, ticker.last);
-                }
+            const ticker = yield this.exchange.fetchTicker(this.symbol);
+            this.priceHistory.push(ticker.last);
+            if (this.priceHistory.length > this.longPeriod) {
+                this.priceHistory.shift(); // remove oldest price
             }
-            catch (error) {
-                logger_1.logger.error(`Failed to execute strategy: ${error}`);
+            const shortSMAValue = this.shortSMA.nextValue(ticker.last);
+            const longSMAValue = this.longSMA.nextValue(ticker.last);
+            if (shortSMAValue && longSMAValue) {
+                if (shortSMAValue > longSMAValue) {
+                    console.log('BUY signal', ticker.last);
+                    // Here you would add the code to place a buy order
+                }
+                else if (shortSMAValue < longSMAValue) {
+                    console.log('SELL signal', ticker.last);
+                    // Here you would add the code to place a sell order
+                }
             }
         });
     }

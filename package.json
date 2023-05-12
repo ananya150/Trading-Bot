@@ -22,6 +22,7 @@
   "dependencies": {
     "ccxt": "^3.0.100",
     "dotenv": "^16.0.3",
+    "technicalindicators": "^3.1.0",
     "winston": "^3.8.2"
   }
 }
