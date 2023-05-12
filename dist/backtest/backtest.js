@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Backtest = void 0;
+const logger_1 = require("../loggers/logger");
 class Backtest {
     constructor(exchange, strategy, symbol, timeframe, initialBalance) {
         this.quantity = 0;
@@ -36,7 +37,7 @@ class Backtest {
                     this.position = { entry: ticker.last, amount: this.balance };
                     // update the balnace
                     this.balance = 0;
-                    console.log(`Bought at ${candle.close}`);
+                    logger_1.logger.info(`Bought at ${candle.close}`);
                 }
                 else if (action === 'sell' && this.quantity > 0 && this.position) {
                     // sell all
@@ -47,7 +48,7 @@ class Backtest {
                     const profit = ticker.last - ((_a = this.position) === null || _a === void 0 ? void 0 : _a.entry);
                     this.trades.push({ entry: (_b = this.position) === null || _b === void 0 ? void 0 : _b.entry, exit: ticker.last, profit: profit });
                     this.position = null;
-                    console.log(`Sold at ${candle.close}`);
+                    logger_1.logger.info(`Sold at ${candle.close}`);
                 }
             }
             const finalBalance = this.balance + this.quantity * ohlcv[ohlcv.length - 1].close;

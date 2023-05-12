@@ -1,5 +1,6 @@
 import { IExchangeInterface } from "../interfaces/exchangeInterface";
 import { SimpleStrategy } from "../strategies/strategy";
+import { logger } from "../loggers/logger";
 
 interface Position {
     entry: number;
@@ -41,7 +42,7 @@ export class Backtest {
             this.position = { entry: ticker.last, amount: this.balance };
             // update the balnace
             this.balance = 0;
-            console.log(`Bought at ${candle.close}`);
+            logger.info(`Bought at ${candle.close}`);
 
         } else if (action === 'sell' && this.quantity > 0 && this.position) {
           
@@ -54,7 +55,7 @@ export class Backtest {
             this.trades.push({entry: this.position?.entry , exit: ticker.last , profit: profit});
             this.position = null;
 
-            console.log(`Sold at ${candle.close}`);
+            logger.info(`Sold at ${candle.close}`);
             
         }
       }
